@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Mic } from "lucide-react"
-import { saveAudioFile } from "../app/audio/actions"
+import { saveAudioFile } from "../app/voice/actions"
 
 export default function AudioProcessing() {
   const [isRecording, setIsRecording] = useState(false)
