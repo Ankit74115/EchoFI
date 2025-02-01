@@ -25,6 +25,28 @@ type TransactionType = {
   type: "send" | "receive";
 };
 
+interface TxResponse {
+  hash: string;
+  value: string;
+  blockTimestamp?: string;
+  from: string;
+}
+
+interface TokenResponse {
+  contractAddress: string;
+  tokenBalance: string;
+}
+
+interface NftResponse {
+  contractAddress: string;
+  tokenId: string;
+  gateway?: string;
+  image?: string;
+  name?: string;
+  description?: string;
+  symbol?: string;
+}
+
 type NftType = {
   contractAddress: string;
   tokenId: string;
@@ -70,7 +92,7 @@ export default function WalletPage() {
       const txResponse = await axios.get(`${API_BASE_URL}/gettransactions`, {
         params: { userAddress: address, chain: chainParam },
       });
-      const transactions: TransactionType[] = txResponse.data.transfers?.map((tx: any) => ({
+      const transactions: TransactionType[] = txResponse.data.transfers?.map((tx: TxResponse) => ({
         hash: tx.hash,
         value: tx.value,
         timestamp: tx.blockTimestamp ? new Date(tx.blockTimestamp).getTime() : 0,
@@ -82,7 +104,7 @@ export default function WalletPage() {
         params: { userAddress: address, chain: chainParam },
       });
 
-      const tokens = tokensResponse.data?.tokenBalances?.map((token: any) => ({
+      const tokens = tokensResponse.data?.tokenBalances?.map((token: TokenResponse) => ({
         symbol: token.contractAddress.slice(0, 6).toUpperCase(),
         balance: token.tokenBalance,
         value: token.tokenBalance,
@@ -93,7 +115,7 @@ export default function WalletPage() {
         params: { userAddress: address, chain: chainParam },
       });
 
-      const nfts: NftType[] = nftsResponse.data?.map((nft: any) => ({
+      const nfts: NftType[] = nftsResponse.data?.map((nft: NftResponse) => ({
         contractAddress: nft.contractAddress,
         tokenId: nft.tokenId,
         image: nft.gateway || nft.image,
