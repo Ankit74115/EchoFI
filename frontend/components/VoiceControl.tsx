@@ -88,6 +88,12 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
     return response.data.response;
   };
 
+  const stopSpeech = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
   // Convert text to speech using the browser's SpeechSynthesis API.
   const speakText = (text: string) => {
     if ("speechSynthesis" in window) {
@@ -109,18 +115,21 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
 
       const openAIResponse = await openAIReasoning(transcriptText);
 
+      console.log("OpenAI response", openAIResponse);
+
       if (openAIResponse.action === "transaction") {
         onNewMessage("Performing transaction...", "ai");
         speakText("Performing transaction...");
         const txResponse = await performTransaction(
-          "send 0.00001 eth to this address 0x77ed0fef5e9DFB34e776adb11c29dd19d382745C"
+          openAIResponse.data as string
+          // "send 0.00001 eth to this address 0x77ed0fef5e9DFB34e776adb11c29dd19d382745C"
         );
         onNewMessage(txResponse, "ai");
         speakText(txResponse);
       } else {
         // Simply display the knowledge response and speak it
-        onNewMessage(openAIResponse.response as string, "ai");
-        speakText(openAIResponse.response as string);
+        onNewMessage(openAIResponse.data as string, "ai");
+        speakText(openAIResponse.data as string);
       }
     } catch (error) {
       console.error("Error processing audio", error);
@@ -219,6 +228,9 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
       <p className="mt-6 text-gray-400 text-center">
         {recording ? "Recording... Click to stop" : "Click to start recording"}
       </p>
+      <button onClick={stopSpeech} className="mt-4 text-gray-400 hover:text-gray-200">
+        Stop speaking
+      </button>
     </div>
   );
 }
