@@ -9,11 +9,7 @@ interface VoiceControlProps {
   onNewMessage: (text: string, type: "user" | "ai") => void;
 }
 
-export default function VoiceControl({
-  isListening,
-  setIsListening,
-  onNewMessage,
-}: VoiceControlProps) {
+export default function VoiceControl({ setIsListening, onNewMessage }: VoiceControlProps) {
   const [recording, setRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
@@ -80,17 +76,17 @@ export default function VoiceControl({
       const result = JSON.parse(messageContent);
       return result;
     } catch (error) {
-      // If parsing fails, assume it's a knowledge response with plain text
+      console.log("Error parsing JSON", error);
       return { action: "knowledge", response: messageContent };
     }
   };
 
   // This function sends the transaction details to agent kit.
-  const performTransaction = async (transactionData: string): Promise<string> => {
-    // Replace '/api/transaction' with your actual transaction API endpoint.
-    const response = await axios.post("/api/transaction", { data: transactionData });
-    return response.data.message; // Expected to return a message string.
-  };
+  // const performTransaction = async (transactionData: string): Promise<string> => {
+  //   // Replace '/api/transaction' with your actual transaction API endpoint.
+  //   const response = await axios.post("/api/transaction", { data: transactionData });
+  //   return response.data.message; // Expected to return a message string.
+  // };
 
   // Convert text to speech using the browser's SpeechSynthesis API.
   const speakText = (text: string) => {
