@@ -54,8 +54,8 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
     const prompt = `You are an AI assistant that analyzes queries regarding DeFi and blockchain transactions.
                     Analyze the following user query:
                     "${transcriptText}"
-                    If the user is asking to perform a transaction (e.g. sending tokens, swapping assets, etc.), return a JSON object with "action": "transaction" and include any necessary transaction details in a "data" field.
-                    If the user is only asking for information about DeFi, return a JSON object with "action": "knowledge" and include a detailed answer in the "response" field.
+                    If the user is asking to perform a transaction or asking to check wallet balance or asking to sending tokens or to swapping assets, etc. return a JSON object like "action" to be "transaction" and include "data": field and data field to be proper instruction what he is expecting.
+                    If the user is only asking for information about DeFi, return a JSON object with "action": "knowledge" and data field which includes data about the query.
                     Only output valid JSON.`;
 
     const response = await axios.post(
@@ -83,11 +83,10 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
   };
 
   // This function sends the transaction details to agent kit.
-  // const performTransaction = async (transactionData: string): Promise<string> => {
-  //   // Replace '/api/transaction' with your actual transaction API endpoint.
-  //   const response = await axios.post("/api/transaction", { data: transactionData });
-  //   return response.data.message; // Expected to return a message string.
-  // };
+  const performTransaction = async (transactionData: string): Promise<string> => {
+    const response = await axios.post("http://localhost:8000/chat", { message: transactionData });
+    return response.data.response;
+  };
 
   // Convert text to speech using the browser's SpeechSynthesis API.
   const speakText = (text: string) => {
@@ -113,10 +112,11 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
       if (openAIResponse.action === "transaction") {
         onNewMessage("Performing transaction...", "ai");
         speakText("Performing transaction...");
-        // Call a backend API to perform the transaction
-        // const txResponse = await performTransaction(openAIResponse.data as string);
-        // onNewMessage(txResponse, "ai");
-        // speakText(txResponse);
+        const txResponse = await performTransaction(
+          "send 0.00001 eth to this address 0x77ed0fef5e9DFB34e776adb11c29dd19d382745C"
+        );
+        onNewMessage(txResponse, "ai");
+        speakText(txResponse);
       } else {
         // Simply display the knowledge response and speak it
         onNewMessage(openAIResponse.response as string, "ai");
