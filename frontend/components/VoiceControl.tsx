@@ -84,7 +84,9 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
 
   // This function sends the transaction details to agent kit.
   const performTransaction = async (transactionData: string): Promise<string> => {
-    const response = await axios.post("http://localhost:8000/chat", { message: transactionData });
+    const response = await axios.post("https://agentkit-zwih.onrender.com/chat", {
+      message: transactionData,
+    });
     return response.data.response;
   };
 
