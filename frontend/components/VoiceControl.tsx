@@ -12,13 +12,13 @@ interface VoiceControlProps {
 export default function VoiceControl({ setIsListening, onNewMessage }: VoiceControlProps) {
   const [recording, setRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+  const recordedChunksRef = useRef<Blob[]>([]);
 
   const handleMicClick = async () => {
     if (!recording) {
       setRecording(true);
       setIsListening(true);
-      setRecordedChunks([]);
+      recordedChunksRef.current = [];
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mediaRecorder = new MediaRecorder(stream);
@@ -27,12 +27,13 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
 
         mediaRecorder.ondataavailable = (event) => {
           if (event.data.size > 0) {
-            setRecordedChunks((prev) => [...prev, event.data]);
+            recordedChunksRef.current.push(event.data);
           }
         };
 
         mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(recordedChunks, { type: "audio/webm" }); // When recording stops, combine chunks into a blob
+          const audioBlob = new Blob(recordedChunksRef.current, { type: "audio/webm" }); // When recording stops, combine chunks into a blob
+          recordedChunksRef.current = [];
           await processAudio(audioBlob);
         };
       } catch (error) {
