@@ -11,7 +11,7 @@ import TokenHoldings from "../../components/TokenHoldings";
 import NetworkSelector from "../../components/NetworkSelector";
 import TransactionList from "../../components/TransactionList";
 
-const API_BASE_URL = "https://jjtua03kid.execute-api.ap-south-1.amazonaws.com/prod";
+const API_BASE_URL = "https://express-sudeep-d6d9935db1bf.herokuapp.com";
 
 const NETWORK_MAP = {
   base: "base-mainnet",
