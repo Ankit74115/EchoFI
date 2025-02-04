@@ -13,6 +13,7 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
   const [recording, setRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleMicClick = async () => {
     if (!recording) {
@@ -91,18 +92,46 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
   };
 
   const stopSpeech = () => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
   };
 
-  // Convert text to speech using the browser's SpeechSynthesis API.
-  const speakText = (text: string) => {
-    if ("speechSynthesis" in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      console.warn("Text-to-speech not supported in this browser.");
+  const speakText = async (text: string) => {
+    try {
+      const response = await axios.post(
+        "https://api.hyperbolic.xyz/v1/audio/generation",
+        { text },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_HYPERBOLIC_API_KEY}`,
+          },
+        }
+      );
+
+      const audioBase64 = response.data.audio;
+      const byteCharacters = atob(audioBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "audio/mpeg" });
+      const audioUrl = URL.createObjectURL(blob);
+
+      // Stop any existing audio before playing new
+      stopSpeech();
+
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      await audio.play();
+    } catch (error) {
+      console.error("Error generating audio:", error);
     }
   };
 
@@ -110,28 +139,21 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
   const processAudio = async (audioBlob: Blob) => {
     try {
       const uploadUrl = await uploadAudio(audioBlob);
-
       const transcriptText = await getTranscription(uploadUrl);
-
       onNewMessage(transcriptText, "user");
 
       const openAIResponse = await openAIReasoning(transcriptText);
 
-      console.log("OpenAI response", openAIResponse);
-
       if (openAIResponse.action === "transaction") {
         onNewMessage("Performing transaction...", "ai");
-        speakText("Performing transaction...");
-        const txResponse = await performTransaction(
-          openAIResponse.data as string
-          // "send 0.00001 eth to this address 0x77ed0fef5e9DFB34e776adb11c29dd19d382745C"
-        );
+        await speakText("Performing transaction...");
+
+        const txResponse = await performTransaction(openAIResponse.data as string);
         onNewMessage(txResponse, "ai");
-        speakText(txResponse);
+        await speakText(txResponse);
       } else {
-        // Simply display the knowledge response and speak it
         onNewMessage(openAIResponse.data as string, "ai");
-        speakText(openAIResponse.data as string);
+        await speakText(openAIResponse.data as string);
       }
     } catch (error) {
       console.error("Error processing audio", error);
