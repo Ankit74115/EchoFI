@@ -3,9 +3,9 @@ pragma solidity ^0.8.26;
 
 import {Script, console} from "forge-std/Script.sol";
 import {MyServiceManager} from "../src/MyServiceManager.sol";
-import {IDelegationManager} from "lib/eigenlayer-contracts/src/contracts/interfaces/IDelegationManager.sol";
-import {AVSDirectory} from "lib/eigenlayer-contracts/src/contracts/core/AVSDirectory.sol";
-import {ISignatureUtils} from "lib/eigenlayer-contracts/src/contracts/interfaces/ISignatureUtils.sol";
+import {IDelegationManager} from "eigenlayer-contracts/src/contracts/interfaces/IDelegationManager.sol";
+import {AVSDirectory} from "eigenlayer-contracts/src/contracts/core/AVSDirectory.sol";
+import {ISignatureUtils} from "eigenlayer-contracts/src/contracts/interfaces/ISignatureUtils.sol";
 
 contract DeployMyServiceManager is Script {
     // Eigen Core Contracts
@@ -40,7 +40,7 @@ contract DeployMyServiceManager is Script {
 
         IDelegationManager.OperatorDetails
             memory operatorDetails = IDelegationManager.OperatorDetails({
-                earningsReceiver: operator,
+                __deprecated_earningsReceiver: operator,
                 delegationApprover: address(0),
                 stakerOptOutWindowBlocks: 0
             });
