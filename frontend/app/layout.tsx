@@ -13,9 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'DeFi Voice Assistant - Your AI-Powered DeFi Companion',
-  description: 'Experience the future of DeFi with our AI-powered voice assistant. Execute trades, manage assets, and navigate the blockchain ecosystem through natural conversation.',
-}
+  title: "EchoFi - Your AI-Powered DeFi Companion",
+  description:
+    "Experience the future of DeFi with our AI-powered voice assistant. Execute trades, manage assets, and navigate the blockchain ecosystem through natural conversation.",
+};
 
 export default function RootLayout({
   children,
@@ -24,11 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }

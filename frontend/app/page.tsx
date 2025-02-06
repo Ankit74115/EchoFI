@@ -1,59 +1,73 @@
-'use client';
+"use client";
 
-import { ArrowRight, Wallet, ArrowRightLeft, BarChart3, Shield, Coins, Mic, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ArrowRight,
+  Wallet,
+  ArrowRightLeft,
+  BarChart3,
+  Shield,
+  Coins,
+  Mic,
+  ChevronRight,
+} from "lucide-react";
 
 export default function Home() {
   const features = [
     {
       icon: <Wallet className="w-6 h-6" />,
       title: "Wallet Management",
-      description: "Securely manage your crypto wallets and check balances with simple voice commands"
+      description:
+        "Securely manage your crypto wallets and check balances with simple voice commands",
     },
     {
       icon: <ArrowRightLeft className="w-6 h-6" />,
       title: "Token Swaps",
-      description: "Execute token swaps across multiple DEXs with natural language instructions"
+      description: "Execute token swaps across multiple DEXs with natural language instructions",
     },
     {
       icon: <BarChart3 className="w-6 h-6" />,
       title: "Market Analysis",
-      description: "Get real-time market insights and price analysis through voice interaction"
+      description: "Get real-time market insights and price analysis through voice interaction",
     },
     {
       icon: <Shield className="w-6 h-6" />,
       title: "Secure Transactions",
-      description: "Enhanced security with voice confirmation for all transactions"
+      description: "Enhanced security with voice confirmation for all transactions",
     },
     {
       icon: <Coins className="w-6 h-6" />,
       title: "DeFi Operations",
-      description: "Manage yield farming, lending, and borrowing through voice commands"
+      description: "Manage yield farming, lending, and borrowing through voice commands",
     },
     {
       icon: <Mic className="w-6 h-6" />,
       title: "Natural Interaction",
-      description: "Interact with DeFi protocols using natural language voice commands"
-    }
+      description: "Interact with DeFi protocols using natural language voice commands",
+    },
   ];
 
   const benefits = [
     {
       title: "Voice-First Experience",
-      description: "No more complex interfaces. Just speak naturally to execute any DeFi operation.",
-      image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&q=80&w=800"
+      description:
+        "No more complex interfaces. Just speak naturally to execute any DeFi operation.",
+      image:
+        "https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&q=80&w=800",
     },
     {
       title: "Smart Portfolio Management",
       description: "Get instant insights about your DeFi portfolio and make informed decisions.",
-      image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"
+      image:
+        "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800",
     },
     {
       title: "Seamless Integration",
       description: "Works with major DeFi protocols and blockchain networks out of the box.",
-      image: "https://images.unsplash.com/photo-1644088379091-d574269d422f?auto=format&fit=crop&q=80&w=800"
-    }
+      image:
+        "https://images.unsplash.com/photo-1644088379091-d574269d422f?auto=format&fit=crop&q=80&w=800",
+    },
   ];
 
   return (
@@ -86,17 +100,19 @@ export default function Home() {
               Your Voice-Powered DeFi Assistant
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Experience the future of DeFi with our AI-powered voice assistant. Execute trades, manage assets, and navigate the blockchain ecosystem - all through natural conversation.
+              Experience the future of DeFi with our AI-powered voice assistant. Execute trades,
+              manage assets, and navigate the blockchain ecosystem - all through natural
+              conversation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
+              <Link
                 href="/voice"
                 className="inline-flex items-center px-8 py-4 border-2 border-blue-500 bg-blue-600 hover:bg-blue-700 text-base font-medium rounded-xl text-white transition-all duration-300 md:text-lg group"
               >
-                Try Voice Assistant 
+                Try Voice Assistant
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a 
+              <a
                 href="#features"
                 className="inline-flex items-center px-8 py-4 border-2 border-purple-500 hover:bg-purple-500/10 text-base font-medium rounded-xl text-white transition-all duration-300 md:text-lg"
               >
@@ -106,7 +122,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
+
         {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-50 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.1),transparent_70%)]"></div>
@@ -143,7 +159,7 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div 
+            <div
               key={index}
               className="p-8 rounded-2xl bg-gradient-to-b from-gray-800/50 to-gray-900/50 border border-gray-700 hover:border-blue-500 transition-all duration-300 backdrop-blur-sm group hover:-translate-y-1"
             >
@@ -173,13 +189,14 @@ export default function Home() {
             Ready to Transform Your DeFi Experience?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join the future of decentralized finance with voice-powered interactions. Start managing your DeFi portfolio with just your voice.
+            Join the future of decentralized finance with voice-powered interactions. Start managing
+            your DeFi portfolio with just your voice.
           </p>
-          <Link 
+          <Link
             href="/voice"
             className="inline-flex items-center px-8 py-4 border-2 border-blue-500 bg-blue-600 hover:bg-blue-700 text-base font-medium rounded-xl text-white transition-all duration-300 md:text-lg group"
           >
-            Get Started Now 
+            Get Started Now
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
