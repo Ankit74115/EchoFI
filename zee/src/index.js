@@ -1,9 +1,15 @@
-import { Agent, ZeeWorkflow } from "@covalenthq/ai-agent-sdk";
 import "dotenv/config";
+import cors from "cors";
 import express from "express";
+import { Agent, ZeeWorkflow } from "@covalenthq/ai-agent-sdk";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
