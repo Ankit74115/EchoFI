@@ -1,1 +1,1 @@
-web: cd zee && npm install && npm run dev
+web: cd zee && npm run dev
