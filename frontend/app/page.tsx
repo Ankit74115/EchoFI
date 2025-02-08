@@ -115,7 +115,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
-                  href="/voice"
+                  href="/language"
                   className="inline-flex items-center px-8 py-4 border-2 border-blue-500 bg-blue-500 hover:bg-blue-600 text-lg font-medium rounded-full text-white transition-all duration-300 shadow-lg"
                 >
                   Try Voice Assistant
@@ -276,7 +276,7 @@ export default function Home() {
           </p>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
-              href="/voice"
+              href="/language"
               className="inline-flex items-center px-8 py-4 border-2 border-blue-500 bg-blue-500 hover:bg-blue-600 text-lg font-medium rounded-full text-white transition-all duration-300 shadow-lg"
             >
               Get Started Now
