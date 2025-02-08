@@ -1,0 +1,1 @@
+web: cd base-agent && npm install && npm start
