@@ -7,9 +7,9 @@ import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { FaWallet, FaEthereum, FaSearch, FaImage } from "react-icons/fa";
 
-import TokenHoldings from "../../components/TokenHoldings";
-import NetworkSelector from "../../components/NetworkSelector";
-import TransactionList from "../../components/TransactionList";
+import TokenHoldings from "../../components/account/TokenHoldings";
+import NetworkSelector from "../../components/account/NetworkSelector";
+import TransactionList from "../../components/account/TransactionList";
 
 const API_BASE_URL = "https://express-sudeep-d6d9935db1bf.herokuapp.com";
 

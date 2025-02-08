@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import ChatInterface from '../../components/ChatInterface';
-import VoiceControl from '../../components/VoiceControl';
+import { useState } from "react";
+import ChatInterface from "../../components/voice/ChatInterface";
+import VoiceControl from "../../components/voice/VoiceControl";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
-  const [messages, setMessages] = useState<Array<{ type: 'user' | 'ai'; text: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ type: "user" | "ai"; text: string }>>([]);
 
-  const handleNewMessage = (text: string, type: 'user' | 'ai') => {
-    setMessages(prev => [...prev, { type, text }]);
+  const handleNewMessage = (text: string, type: "user" | "ai") => {
+    setMessages((prev) => [...prev, { type, text }]);
   };
 
   return (
@@ -21,8 +21,8 @@ export default function Home() {
 
       {/* Right Side - Voice Control */}
       <div className="w-1/3 flex flex-col items-center justify-center p-6 border-l border-gray-700">
-        <VoiceControl 
-          isListening={isListening} 
+        <VoiceControl
+          isListening={isListening}
           setIsListening={setIsListening}
           onNewMessage={handleNewMessage}
         />
