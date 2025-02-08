@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 const languages = [
-  { code: "en", name: "English", icon: "🇬🇧" },
-  { code: "hi", name: "Hindi", icon: "🇮🇳" },
-  { code: "ko", name: "Korean", icon: "🇰🇷" },
-  { code: "ar", name: "Arabic", icon: "🇸🇦" },
+  { code: "english", name: "English", icon: "🇬🇧" },
+  { code: "hindi", name: "Hindi", icon: "🇮🇳" },
+  { code: "korean", name: "Korean", icon: "🇰🇷" },
+  { code: "arabic", name: "Arabic", icon: "🇸🇦" },
   { code: "zh", name: "Chinese", icon: "🇨🇳" },
   { code: "nl", name: "Dutch", icon: "🇳🇱" },
 ];
@@ -20,7 +20,7 @@ export default function LanguageSelectionPage() {
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode);
     setTimeout(() => {
-      router.push(`/${languageCode}`);
+      router.push(`/language/${languageCode}`);
     }, 500);
   };
 
