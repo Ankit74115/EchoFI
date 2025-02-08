@@ -16,6 +16,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
+import cors from "cors";
 
 dotenv.config();
 
@@ -26,7 +27,7 @@ function validateEnvironment(): void {
   const missingVars: string[] = [];
   const requiredVars = ["OPENAI_API_KEY", "CDP_API_KEY_NAME", "CDP_API_KEY_PRIVATE_KEY"];
 
-  requiredVars.forEach(varName => {
+  requiredVars.forEach((varName) => {
     if (!process.env[varName]) {
       missingVars.push(varName);
     }
@@ -34,7 +35,9 @@ function validateEnvironment(): void {
 
   if (missingVars.length > 0) {
     console.error("Error: Required environment variables are not set");
-    missingVars.forEach(varName => console.error(`${varName}=your_${varName.toLowerCase()}_here`));
+    missingVars.forEach((varName) =>
+      console.error(`${varName}=your_${varName.toLowerCase()}_here`)
+    );
     process.exit(1);
   }
 
@@ -131,7 +134,14 @@ Basename fails, you should prompt to try again with a more unique name.
 }
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 let agentInstance: any;
 let agentConfig: any;
@@ -142,14 +152,14 @@ initializeAgent()
     agentConfig = config;
     console.log("Agent initialized successfully");
   })
-  .catch(error => {
+  .catch((error) => {
     console.error("Agent initialization failed:", error);
   });
 
 /**
  * POST /chat - Handle user chat input
  */
-app.post("/chat", async (req:any, res:any) => {
+app.post("/chat", async (req: any, res: any) => {
   try {
     if (!agentInstance) {
       return res.status(500).json({ error: "Agent is not initialized yet." });
@@ -161,7 +171,10 @@ app.post("/chat", async (req:any, res:any) => {
       return res.status(400).json({ error: "Message is required in request body." });
     }
 
-    const stream = await agentInstance.stream({ messages: [new HumanMessage(message)] }, agentConfig);
+    const stream = await agentInstance.stream(
+      { messages: [new HumanMessage(message)] },
+      agentConfig
+    );
     let responseText = "";
 
     for await (const chunk of stream) {

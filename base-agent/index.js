@@ -48,7 +48,11 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
 const agentkit_1 = require("@coinbase/agentkit");
 const agentkit_langchain_1 = require("@coinbase/agentkit-langchain");
 const messages_1 = require("@langchain/core/messages");
@@ -57,65 +61,47 @@ const prebuilt_1 = require("@langchain/langgraph/prebuilt");
 const openai_1 = require("@langchain/openai");
 const dotenv = __importStar(require("dotenv"));
 const fs = __importStar(require("fs"));
-const readline = __importStar(require("readline"));
+const cors_1 = __importDefault(require("cors"));
 dotenv.config();
 /**
  * Validates that required environment variables are set
- *
- * @throws {Error} - If required environment variables are missing
- * @returns {void}
  */
 function validateEnvironment() {
     const missingVars = [];
-    // Check required variables
     const requiredVars = ["OPENAI_API_KEY", "CDP_API_KEY_NAME", "CDP_API_KEY_PRIVATE_KEY"];
-    requiredVars.forEach(varName => {
+    requiredVars.forEach((varName) => {
         if (!process.env[varName]) {
             missingVars.push(varName);
         }
     });
-    // Exit if any required variables are missing
     if (missingVars.length > 0) {
         console.error("Error: Required environment variables are not set");
-        missingVars.forEach(varName => {
-            console.error(`${varName}=your_${varName.toLowerCase()}_here`);
-        });
+        missingVars.forEach((varName) => console.error(`${varName}=your_${varName.toLowerCase()}_here`));
         process.exit(1);
     }
-    // Warn about optional NETWORK_ID
     if (!process.env.NETWORK_ID) {
         console.warn("Warning: NETWORK_ID not set, defaulting to base-sepolia testnet");
     }
 }
-// Add this right after imports and before any other code
 validateEnvironment();
-// Configure a file to persist the agent's CDP MPC Wallet Data
 const WALLET_DATA_FILE = "wallet_data.txt";
 /**
  * Initialize the agent with CDP Agentkit
- *
- * @returns Agent executor and config
  */
 function initializeAgent() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
         try {
-            // Initialize LLM
-            const llm = new openai_1.ChatOpenAI({
-                model: "gpt-4o-mini",
-            });
+            const llm = new openai_1.ChatOpenAI({ model: "gpt-4o-mini" });
             let walletDataStr = null;
-            // Read existing wallet data if available
             if (fs.existsSync(WALLET_DATA_FILE)) {
                 try {
                     walletDataStr = fs.readFileSync(WALLET_DATA_FILE, "utf8");
                 }
                 catch (error) {
                     console.error("Error reading wallet data:", error);
-                    // Continue without wallet data
                 }
             }
-            // Configure CDP Wallet Provider
             const config = {
                 apiKeyName: process.env.CDP_API_KEY_NAME,
                 apiKeyPrivateKey: (_a = process.env.CDP_API_KEY_PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/g, "\n"),
@@ -123,7 +109,6 @@ function initializeAgent() {
                 networkId: process.env.NETWORK_ID || "base-sepolia",
             };
             const walletProvider = yield agentkit_1.CdpWalletProvider.configureWithWallet(config);
-            // Initialize AgentKit
             const agentkit = yield agentkit_1.AgentKit.from({
                 walletProvider,
                 actionProviders: [
@@ -142,10 +127,8 @@ function initializeAgent() {
                 ],
             });
             const tools = yield (0, agentkit_langchain_1.getLangChainTools)(agentkit);
-            // Store buffered conversation history in memory
             const memory = new langgraph_1.MemorySaver();
             const agentConfig = { configurable: { thread_id: "CDP AgentKit Chatbot Example!" } };
-            // Create React Agent using the LLM and CDP AgentKit tools
             const agent = (0, prebuilt_1.createReactAgent)({
                 llm,
                 tools,
@@ -171,195 +154,76 @@ Do not suggest any alternatives and never try to register a Basename with anothe
 Basename fails, you should prompt to try again with a more unique name.
         `,
             });
-            // Save wallet data
             const exportedWallet = yield walletProvider.exportWallet();
             fs.writeFileSync(WALLET_DATA_FILE, JSON.stringify(exportedWallet));
             return { agent, config: agentConfig };
         }
         catch (error) {
             console.error("Failed to initialize agent:", error);
-            throw error; // Re-throw to be handled by caller
+            throw error;
         }
     });
 }
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
+    origin: "*",
+}));
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+let agentInstance;
+let agentConfig;
+initializeAgent()
+    .then(({ agent, config }) => {
+    agentInstance = agent;
+    agentConfig = config;
+    console.log("Agent initialized successfully");
+})
+    .catch((error) => {
+    console.error("Agent initialization failed:", error);
+});
 /**
- * Fetch real-time price data from Pyth using a specified price feed ID
- *
- * @param pyth - Pyth action provider
- * @param priceFeedID - The Pyth price feed ID to fetch the data for
+ * POST /chat - Handle user chat input
  */
-function fetchPythPrice(pyth, priceFeedID) {
-    return __awaiter(this, void 0, void 0, function* () {
+app.post("/chat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, e_1, _b, _c;
+    try {
+        if (!agentInstance) {
+            return res.status(500).json({ error: "Agent is not initialized yet." });
+        }
+        const { message } = req.body;
+        if (!message) {
+            return res.status(400).json({ error: "Message is required in request body." });
+        }
+        const stream = yield agentInstance.stream({ messages: [new messages_1.HumanMessage(message)] }, agentConfig);
+        let responseText = "";
         try {
-            const price = yield pyth.fetchPrice({ priceFeedID });
-            console.log(`Fetched Pyth price: ${JSON.stringify(price, null, 2)}`);
-        }
-        catch (error) {
-            console.error("Error fetching Pyth price:", error);
-        }
-    });
-}
-/**
- * Run the agent autonomously with specified intervals
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- * @param interval - Time interval between actions in seconds
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function runAutonomousMode(agent_1, config_1, pyth_1) {
-    return __awaiter(this, arguments, void 0, function* (agent, config, pyth, interval = 10) {
-        var _a, e_1, _b, _c;
-        console.log("Starting autonomous mode...");
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            try {
-                // Fetch Pyth price during autonomous mode
-                const priceFeedID = "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
-                yield fetchPythPrice(pyth, priceFeedID);
-                const thought = "Be creative and do something interesting on the blockchain. " +
-                    "Choose an action or set of actions and execute it that highlights your abilities.";
-                const stream = yield agent.stream({ messages: [new messages_1.HumanMessage(thought)] }, config);
-                try {
-                    for (var _d = true, stream_1 = (e_1 = void 0, __asyncValues(stream)), stream_1_1; stream_1_1 = yield stream_1.next(), _a = stream_1_1.done, !_a; _d = true) {
-                        _c = stream_1_1.value;
-                        _d = false;
-                        const chunk = _c;
-                        if ("agent" in chunk) {
-                            console.log(chunk.agent.messages[0].content);
-                        }
-                        else if ("tools" in chunk) {
-                            console.log(chunk.tools.messages[0].content);
-                        }
-                        console.log("-------------------");
-                    }
+            for (var _d = true, stream_1 = __asyncValues(stream), stream_1_1; stream_1_1 = yield stream_1.next(), _a = stream_1_1.done, !_a; _d = true) {
+                _c = stream_1_1.value;
+                _d = false;
+                const chunk = _c;
+                if ("agent" in chunk) {
+                    responseText += chunk.agent.messages[0].content;
                 }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (!_d && !_a && (_b = stream_1.return)) yield _b.call(stream_1);
-                    }
-                    finally { if (e_1) throw e_1.error; }
-                }
-                yield new Promise(resolve => setTimeout(resolve, interval * 1000));
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    console.error("Error:", error.message);
-                }
-                process.exit(1);
-            }
-        }
-    });
-}
-/**
- * Run the agent interactively based on user input
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function runChatMode(agent, config) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, e_2, _b, _c;
-        console.log("Starting chat mode... Type 'exit' to end.");
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout,
-        });
-        const question = (prompt) => new Promise(resolve => rl.question(prompt, resolve));
-        try {
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
-                const userInput = yield question("\nPrompt: ");
-                if (userInput.toLowerCase() === "exit") {
-                    break;
-                }
-                const stream = yield agent.stream({ messages: [new messages_1.HumanMessage(userInput)] }, config);
-                try {
-                    for (var _d = true, stream_2 = (e_2 = void 0, __asyncValues(stream)), stream_2_1; stream_2_1 = yield stream_2.next(), _a = stream_2_1.done, !_a; _d = true) {
-                        _c = stream_2_1.value;
-                        _d = false;
-                        const chunk = _c;
-                        if ("agent" in chunk) {
-                            console.log(chunk.agent.messages[0].content);
-                        }
-                        else if ("tools" in chunk) {
-                            console.log(chunk.tools.messages[0].content);
-                        }
-                        console.log("-------------------");
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (!_d && !_a && (_b = stream_2.return)) yield _b.call(stream_2);
-                    }
-                    finally { if (e_2) throw e_2.error; }
+                else if ("tools" in chunk) {
+                    responseText += chunk.tools.messages[0].content;
                 }
             }
         }
-        catch (error) {
-            if (error instanceof Error) {
-                console.error("Error:", error.message);
-            }
-            process.exit(1);
-        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
-            rl.close();
-        }
-    });
-}
-/**
- * Choose whether to run in autonomous or chat mode based on user input
- *
- * @returns Selected mode
- */
-function chooseMode() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout,
-        });
-        const question = (prompt) => new Promise(resolve => rl.question(prompt, resolve));
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            console.log("\nAvailable modes:");
-            console.log("1. chat    - Interactive chat mode");
-            console.log("2. auto    - Autonomous action mode");
-            const choice = (yield question("\nChoose a mode (enter number or name): "))
-                .toLowerCase()
-                .trim();
-            if (choice === "1" || choice === "chat") {
-                rl.close();
-                return "chat";
+            try {
+                if (!_d && !_a && (_b = stream_1.return)) yield _b.call(stream_1);
             }
-            else if (choice === "2" || choice === "auto") {
-                rl.close();
-                return "auto";
-            }
-            console.log("Invalid choice. Please try again.");
+            finally { if (e_1) throw e_1.error; }
         }
-    });
-}
-/**
- * Start the chatbot agent
- */
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { agent, config } = yield initializeAgent();
-            const mode = yield chooseMode();
-            if (mode === "chat") {
-                yield runChatMode(agent, config);
-            }
-            else {
-                //await runAutonomousMode(agent, config, agent.pythActionProvider, 10);
-            }
-        }
-        catch (error) {
-            console.error("Error during agent initialization:", error);
-        }
-    });
-}
-main();
+        res.json({ response: responseText.trim() });
+    }
+    catch (error) {
+        console.error("Error processing chat:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
