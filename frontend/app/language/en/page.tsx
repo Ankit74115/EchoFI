@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import ChatInterface from "../../components/voice/ChatInterface";
-import VoiceControl from "../../components/voice/VoiceControl";
+import ChatInterface from "../../../components/voice/ChatInterface";
+import VoiceControl from "../../../components/voice/VoiceControl";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);

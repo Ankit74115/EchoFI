@@ -57,6 +57,7 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
     //   message: transactionData,
     // });
     // return response.data.response;
+    console.log("Transaction data:", transactionData);
     return "done";
   };
 
