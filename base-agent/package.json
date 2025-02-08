@@ -18,21 +18,19 @@
     "@langchain/ollama": "^0.1.5",
     "@langchain/openai": "^0.3.14",
     "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "typescript": "^5.7.3",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "langchain": "^0.3.14",
+    "@types/md5": "^2.3.5",
     "md5": "^2.3.0",
     "zod": "^3.22.4"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/md5": "^2.3.5",
-    "typescript": "^5.7.3"
-  }
+  "description": ""
 }
