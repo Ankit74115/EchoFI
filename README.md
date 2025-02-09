@@ -41,7 +41,22 @@ EchoFi is an advanced AI-powered DeFi agent that interacts with users like a hum
 - **AI & NLP**: OpenAI, Assembly AI
 - **Blockchain & DeFi**: Solana, Ethereum, Base Network, Covalent API
 - **Data & Analytics**: Rapid API, Oracle services
-- **Backend & Infrastructure**: NestJS, TypeORM, Elasticsearch
+- **Backend & Infrastructure**: Express Js
+
+## Hyperbolic AVS is used for speech synthesis
+
+<img width="827" alt="Screenshot 2025-02-09 at 11 29 11 PM" src="https://github.com/user-attachments/assets/dd692bbd-968b-40af-83f0-bddad634637e" />
+
+
+## All our AI Agents are deployed to autonome
+
+1. Covalent Agent
+
+<img width="1374" alt="Screenshot 2025-02-09 at 11 25 50 PM" src="https://github.com/user-attachments/assets/f4fe888b-ef2c-4a64-b323-153109df35f1" />
+
+2. Base Agent
+   
+<img width="950" alt="Screenshot 2025-02-09 at 11 27 20 PM" src="https://github.com/user-attachments/assets/7ced8f34-3702-4509-abb7-fb57f54778e0" />
 
 ## Future Roadmap
 - **Multi-chain Support**: Expanding to additional blockchains beyond Ethereum, Solana, and Base.
