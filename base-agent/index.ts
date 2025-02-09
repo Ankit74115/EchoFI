@@ -18,7 +18,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
-import express from 'express';
+import express from "express";
+import cors from "cors";
 
 // Viem-related imports for wallet management
 import { createWalletClient, http } from "viem";
@@ -38,7 +39,7 @@ function validateEnvironment(): void {
 
   // Check required variables
   const requiredVars = ["OPENAI_API_KEY", "CDP_API_KEY_NAME", "CDP_API_KEY_PRIVATE_KEY"];
-  requiredVars.forEach(varName => {
+  requiredVars.forEach((varName) => {
     if (!process.env[varName]) {
       missingVars.push(varName);
     }
@@ -47,7 +48,7 @@ function validateEnvironment(): void {
   // Exit if any required variables are missing
   if (missingVars.length > 0) {
     console.error("Error: Required environment variables are not set");
-    missingVars.forEach(varName => {
+    missingVars.forEach((varName) => {
       console.error(`${varName}=your_${varName.toLowerCase()}_here`);
     });
     process.exit(1);
@@ -77,12 +78,12 @@ const ENV_FILE = ".env";
  */
 function updateEnvFile(walletData: string): void {
   try {
-    const envPath = '.env';
-    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
-    
+    const envPath = ".env";
+    const lines = fs.readFileSync(envPath, "utf8").split("\n");
+
     // Find the CDP_WALLET_DATA line and update it
-    const cdpWalletIndex = lines.findIndex(line => line.startsWith('CDP_WALLET_DATA='));
-    
+    const cdpWalletIndex = lines.findIndex((line) => line.startsWith("CDP_WALLET_DATA="));
+
     if (cdpWalletIndex !== -1) {
       // Update the existing line for CDP_WALLET_DATA
       lines[cdpWalletIndex] = `CDP_WALLET_DATA=${walletData}`;
@@ -92,10 +93,8 @@ function updateEnvFile(walletData: string): void {
     }
 
     // Filter out empty lines and join them back with newlines
-    const newContent = lines
-      .filter(line => line.trim() !== '')
-      .join('\n') + '\n';
-    
+    const newContent = lines.filter((line) => line.trim() !== "").join("\n") + "\n";
+
     fs.writeFileSync(envPath, newContent);
     console.log("Successfully updated CDP_WALLET_DATA");
   } catch (error) {
@@ -125,7 +124,7 @@ async function initializeAgent() {
     });
 
     // Create a Viem wallet client using a hardcoded private key
-        const account = privateKeyToAccount(
+    const account = privateKeyToAccount(
       (process.env.PRIVATE_KEY || "") as `0x${string}` // Type assertion to match expected format
     );
 
@@ -153,11 +152,11 @@ async function initializeAgent() {
       apiKeyName: process.env.CDP_API_KEY_NAME,
       apiKeyPrivateKey: process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       networkId: process.env.NETWORK_ID || "base-sepolia",
-      cdpWalletData: process.env.CDP_WALLET_DATA
+      cdpWalletData: process.env.CDP_WALLET_DATA,
     };
 
     //const walletProvider2 = await CdpWalletProvider.configureWithWallet(config);
-    
+
     // Get wallet details directly from provider
     // console.log("\nWallet Details:");
     // console.log("- Address:", walletProvider2.getAddress());
@@ -171,9 +170,7 @@ async function initializeAgent() {
       actionProviders: [
         wethActionProvider(),
         pythActionProvider(),
-        walletActionProvider(
-
-        ),
+        walletActionProvider(),
         erc20ActionProvider(),
         cdpApiActionProvider({
           apiKeyName: process.env.CDP_API_KEY_NAME,
@@ -274,7 +271,7 @@ async function runAutonomousMode(agent: any, config: any, pyth: any, interval = 
         console.log("-------------------");
       }
 
-      await new Promise(resolve => setTimeout(resolve, interval * 1000));
+      await new Promise((resolve) => setTimeout(resolve, interval * 1000));
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error:", error.message);
@@ -340,7 +337,7 @@ async function chooseMode(): Promise<"chat" | "auto"> {
   });
 
   const question = (prompt: string): Promise<string> =>
-    new Promise(resolve => rl.question(prompt, resolve));
+    new Promise((resolve) => rl.question(prompt, resolve));
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -373,7 +370,7 @@ async function main() {
     if (mode === "chat") {
       //await runChatMode(agent, config);
     } else {
-     //await runAutonomousMode(agent, config, agent.pythActionProvider, 10);
+      //await runAutonomousMode(agent, config, agent.pythActionProvider, 10);
     }
   } catch (error) {
     console.error("Error during agent initialization:", error);
@@ -382,10 +379,17 @@ async function main() {
 
 // Create an Express application
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Define the /chat endpoint
-app.post('/chat', async (req:any, res:any) => {
+app.post("/chat", async (req: any, res: any) => {
   const userInput = req.body.message; // Fetch user input from request body
 
   if (!userInput) {
@@ -396,7 +400,7 @@ app.post('/chat', async (req:any, res:any) => {
     const { agent, config } = await initializeAgent();
     const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
 
-    let responseContent = '';
+    let responseContent = "";
     for await (const chunk of stream) {
       if ("agent" in chunk) {
         responseContent += chunk.agent.messages[0].content + "\n";
