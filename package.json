@@ -1,7 +1,0 @@
-{
-  "name": "echofi",
-  "version": "1.0.0",
-  "scripts": {
-    "start": "cd base-agent && npm install && npm start"
-  }
-}

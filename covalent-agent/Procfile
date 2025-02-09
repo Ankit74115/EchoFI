@@ -1,1 +1,0 @@
-web: cd zee && npm install && npm run dev
