@@ -1,21 +1,19 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaMicrophone } from "react-icons/fa";
-import axios from "axios";
-import openAIReasoning from "../../utils/openaiReasoning";
 import { getTranscription, uploadAudio } from "../../utils/assemblyai";
+import { stopSpeech } from "../../utils/hyperbolic";
 
 interface VoiceControlProps {
   isListening: boolean;
   setIsListening: (value: boolean) => void;
-  onNewMessage: (text: string, type: "user" | "ai") => void;
+  handleUserInput: (text: string) => void;
 }
 
-export default function VoiceControl({ setIsListening, onNewMessage }: VoiceControlProps) {
+export default function VoiceControl({ setIsListening, handleUserInput }: VoiceControlProps) {
   const [recording, setRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleMicClick = async () => {
     if (!recording) {
@@ -51,88 +49,11 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
     }
   };
 
-  const speakText = async (text: string) => {
-    try {
-      const response = await axios.post(
-        "https://api.hyperbolic.xyz/v1/audio/generation",
-        { text },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_HYPERBOLIC_API_KEY}`,
-          },
-        }
-      );
-
-      const audioBase64 = response.data.audio;
-      const byteCharacters = atob(audioBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "audio/mpeg" });
-      const audioUrl = URL.createObjectURL(blob);
-
-      stopSpeech(); // Stop any existing audio before playing new
-
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-      await audio.play();
-    } catch (error) {
-      console.error("Error generating audio:", error);
-    }
-  };
-
-  const stopSpeech = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current = null;
-    }
-  };
-
-  // Main function to process the recorded audio
   const processAudio = async (audioBlob: Blob) => {
     try {
       const uploadUrl = await uploadAudio(audioBlob);
       const transcriptText = await getTranscription(uploadUrl);
-      onNewMessage(transcriptText, "user");
-
-      const openAIResponse = await openAIReasoning(transcriptText);
-
-      console.log(openAIResponse);
-
-      if (openAIResponse.action === "base-transaction") {
-        onNewMessage("Performing transaction on Base Network...", "ai");
-        await speakText("Performing transaction on Base Network");
-        const response = await axios.post(
-          "https://autonome.alt.technology/base-ai-oyweuq/chat",
-          {
-            message: openAIResponse.data,
-          },
-          {
-            headers: {
-              Authorization: `Basic ${process.env.NEXT_PUBLIC_AUTONOME_BASE_AGENT}`,
-            },
-          }
-        );
-        onNewMessage(response.data.response, "ai");
-        await speakText(response.data.response);
-      } else if (openAIResponse.action === "covalent-transaction") {
-        onNewMessage("Performing Transaction using covalent agents...", "ai");
-        await speakText("Performing Transaction using covalent agents");
-        // const response = await axios.post("https://base-ai-agent-e88fafda6d87.herokuapp.com/chat", {
-        //   message: openAIResponse.data,
-        // });
-        // onNewMessage(response.data.response, "ai");
-        // await speakText(response.data.response);
-      } else {
-        onNewMessage(openAIResponse.data as string, "ai");
-        await speakText(openAIResponse.data as string);
-      }
+      handleUserInput(transcriptText);
     } catch (error) {
       console.error("Error processing audio", error);
     }
