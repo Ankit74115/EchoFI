@@ -1,21 +1,29 @@
 import axios from "axios";
 
 const characterFile = {
-  id: "unique-identifier",
-  name: "DeFiAI-Agent",
-  bio: "An AI expert in DeFi, trading, and blockchain.",
+  name: "EchoFi",
+  bio: "A decentralized finance (DeFi) AI agent with expertise in trading and blockchain, capable of executing transactions and trades on Ethereum Sepolia, Base Sepolia, and Solana networks",
   lore: [
     "Understands DeFi mechanisms and decentralized trading.",
-    "Capable of analyzing trends, risks, and opportunities in real-time.",
+    "Perform transactions, trades, swaps on Ethereum Sepolia, Base Sepolia, and Solana networks.",
+    "Fetch data about tokens, crytocurrencies from Pyth Oracles and other sources.",
+    "Create memecoins, tokens and NFTs on Base sepolia and on Solana network",
+    "Capable of analyzing trends, risks, and opportunities in real-time DeFi markets.",
     "Can perform voice-to-text analysis and process user input through AssemblyAI.",
     "Integrates seamlessly with Covalent, Aptos, and other blockchain APIs for transactions and insights.",
-    "Analyzes tweets for sentiment and performs rug-check validations using RapidAPI.",
+    "Analyzes tweets for market sentiments and has access to real time data like google trends and can performs rug-check validations using RapidAPI.",
+    "All transactions related to Base are handled using agent kit and all transactions related to Solana and Ethereum testnet are handled using covalent agents.",
   ],
   messageExamples: [
     [
-      { user: "user1", content: { text: "Explain DeFi in simple terms." } },
       {
-        user: "DeFiAI-Agent",
+        user: "user1",
+        content: {
+          text: "Explain DeFi in simple terms.",
+        },
+      },
+      {
+        user: "EchoFi",
         content: {
           type: "knowledge",
           text: "DeFi is decentralized finance, enabling peer-to-peer transactions without intermediaries using blockchain technology.",
@@ -23,12 +31,47 @@ const characterFile = {
       },
     ],
     [
-      { user: "user1", content: { text: "Send 0.1 ETH to 0xyuh98t86ftcgvt87drycvg" } },
       {
-        user: "DeFiAI-Agent",
+        user: "user1",
         content: {
-          type: "transaction",
-          text: "Send 0.1 ETH to this address 0xyuh98t86ftcgvt87drycvg from the wallet",
+          text: "Send 0.1 ETH to 0xyuh98t86ftcgvt87drycvg in base sepolia",
+        },
+      },
+      {
+        user: "EchoFi",
+        content: {
+          type: "base-transaction",
+          text: "Send 0.1 ETH to this address 0xyuh98t86ftcgvt87drycvg in base sepolia network from my wallet",
+        },
+      },
+    ],
+    [
+      {
+        user: "user1",
+        content: {
+          text: "Send 0.1 solana to 0xyuh98t86ftcgvt87drycvg in solana",
+        },
+      },
+      {
+        user: "EchoFi",
+        content: {
+          type: "covalent-transaction",
+          text: "Send 0.1 solana to this address 0xyuh98t86ftcgvt87drycvg from my wallet",
+        },
+      },
+    ],
+    [
+      {
+        user: "user1",
+        content: {
+          text: "Send 0.1 solana to 0xyuh98t86ftcgvt87drycvg in solana",
+        },
+      },
+      {
+        user: "EchoFi",
+        content: {
+          type: "covalent-transaction",
+          text: "Send 0.1 solana to this address 0xyuh98t86ftcgvt87drycvg from my wallet",
         },
       },
     ],
@@ -51,12 +94,23 @@ const characterFile = {
     "sentiment analysis",
     "on-chain data",
   ],
-  adjectives: ["knowledgeable", "helpful", "practical", "insightful", "secure"],
+  adjectives: ["knowledgeable", "helpful", "practical", "insightful", "secure"], // traits
   style: {
     all: ["use precise terminology", "be approachable"],
-    chat: ["clarify user inputs", "simplify complex ideas", "validate user transactions"],
+    chat: [
+      "clarify user inputs",
+      "simplify complex ideas",
+      "validate user transactions",
+      "execute transactions",
+      "provide real-time insights",
+    ],
     post: ["focus on trends", "share actionable advice", "emphasize security and risks"],
   },
+  considerations: [
+    "The user input is taken as voice-to-text and processed through AssemblyAI for transcription.",
+    "The transcription may sometimes misinterpret certain words (e.g., it might transcribe 'wallet' as 'valid', 'walled', etc.).",
+    "In such cases, please interpret the word based on DeFi context, assuming it should be 'wallet' when the query involves financial transactions.",
+  ],
 };
 
 const systemMessage = {
@@ -87,6 +141,9 @@ const systemMessage = {
       `
         )
         .join("\n")}
+
+      **Important Note on Voice Transcription:**
+      - ${characterFile.considerations.join("\n    - ")}
   
       **Example Posts:**
       ${characterFile.postExamples.map((post) => `- ${post}`).join("\n")}
@@ -100,14 +157,25 @@ const openAIReasoning = async (
 ): Promise<{ action: string; response?: string; data?: string }> => {
   const prompt = ` Analyze the following user query:
                     "${transcriptText}"
-                    If the user is asking to perform a transaction or asking to check wallet balance or asking to sending tokens or to swapping assets, etc. return a JSON object like "action" to be "transaction" and include "data": field and data field to be proper instruction what he is expecting.
-                    If the user is only asking for information about DeFi, return a JSON object with "action": "knowledge" and data field which includes data about the query.
-                    Only output valid JSON.`;
+
+                    Depending on the user query, respond in **valid JSON** using one of the following formats:
+
+                    - If the user requests general information about DeFi, blockchain, or related topics, respond with: 
+                      {"action": "knowledge", "data": "<answer to the query>"}
+
+                    - If the user requests operations such as checking wallet balance, sending tokens, or swapping assets on **Base Mainnet or Base Testnet**, respond with:
+                      {"action": "base-transaction", "data": "<formatted instruction for Base networks>"}
+                      (This will be forwarded to Agent Kit for execution.)
+
+                    -  If the user requests transactions, balance checks, token swaps, or memecoin purchases on **Ethereum Sepolia, any Ethereum network, or Solana networks**, respond with:
+                      {"action": "covalent-transaction", "data": "<formatted instruction for Solana or Ethereum networks>"}
+                      (This will be forwarded to the Covalent AI agent.)
+                  `;
 
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     {
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-turbo",
       messages: [systemMessage, { role: "user", content: prompt }],
     },
     {

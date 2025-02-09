@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 interface Message {
-  type: 'user' | 'ai';
+  type: "user" | "ai";
   text: string;
 }
 
@@ -24,13 +24,11 @@ export default function ChatInterface({ messages }: ChatInterfaceProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`max-w-[80%] p-4 rounded-lg ${
-                message.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-100'
+                message.type === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-100"
               }`}
             >
               <p className="text-sm">{message.text}</p>

@@ -51,14 +51,6 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
     }
   };
 
-  // This function sends the transaction details to agent kit.
-  const performTransaction = async (transactionData: string): Promise<string> => {
-    const response = await axios.post("https://base-ai-agent-e88fafda6d87.herokuapp.com/chat", {
-      message: transactionData,
-    });
-    return response.data.response;
-  };
-
   const speakText = async (text: string) => {
     try {
       const response = await axios.post(
@@ -111,13 +103,24 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
 
       const openAIResponse = await openAIReasoning(transcriptText);
 
-      if (openAIResponse.action === "transaction") {
-        onNewMessage("Performing transaction...", "ai");
-        await speakText("Performing transaction...");
+      console.log(openAIResponse);
 
-        const txResponse = await performTransaction(openAIResponse.data as string);
-        onNewMessage(txResponse, "ai");
-        await speakText(txResponse);
+      if (openAIResponse.action === "base-transaction") {
+        onNewMessage("Performing transaction on Base Network...", "ai");
+        await speakText("Performing transaction on Base Network");
+        const response = await axios.post("https://base-ai-agent-e88fafda6d87.herokuapp.com/chat", {
+          message: openAIResponse.data,
+        });
+        onNewMessage(response.data.response, "ai");
+        await speakText(response.data.response);
+      } else if (openAIResponse.action === "covalent-transaction") {
+        onNewMessage("Performing Transaction using covalent agents...", "ai");
+        await speakText("Performing Transaction using covalent agents");
+        // const response = await axios.post("https://base-ai-agent-e88fafda6d87.herokuapp.com/chat", {
+        //   message: openAIResponse.data,
+        // });
+        // onNewMessage(response.data.response, "ai");
+        // await speakText(response.data.response);
       } else {
         onNewMessage(openAIResponse.data as string, "ai");
         await speakText(openAIResponse.data as string);
