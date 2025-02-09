@@ -124,9 +124,8 @@ async function initializeAgent() {
     });
 
     // Create a Viem wallet client using a hardcoded private key
-    const account = privateKeyToAccount(
-      "0xede21d0d1915a9e616a58f4c4a9cffa27e9088333650ac5cf375c51f0e699547"
-       
+        const account = privateKeyToAccount(
+      (process.env.PRIVATE_KEY || "") as `0x${string}` // Type assertion to match expected format
     );
 
     const client = createWalletClient({
