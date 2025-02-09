@@ -33,6 +33,9 @@ EchoFi is an advanced AI-powered DeFi agent that interacts with users like a hum
    - Private transactions are handled separately through a Private Transaction Agent.
 6. **Response & Interaction**:
    - The AI agent responds via text or voice, providing real-time updates to the user.
+  
+### Demo
+[![Watch the video](https://img.youtube.com/vi/raKDcZQEwQc/0.jpg)](https://youtu.be/raKDcZQEwQc)
 
 ## Technologies Used
 - **AI & NLP**: OpenAI, Assembly AI
