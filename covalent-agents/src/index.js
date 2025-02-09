@@ -26,30 +26,6 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-const agent1 = new Agent({
-  name: "Agent1",
-  model: {
-    provider: "OPEN_AI",
-    name: "gpt-4o-mini",
-  },
-  description: "A helpful AI assistant that can engage in conversation.",
-});
-
-const agent2 = new Agent({
-  name: "Agent2",
-  model: {
-    provider: "OPEN_AI",
-    name: "gpt-4o-mini",
-  },
-  description: "A helpful AI assistant that can engage in conversation.",
-});
-
-const zee = new ZeeWorkflow({
-  description: "just say hi",
-  output: "Just bunch of stuff",
-  agents: { agent1, agent2 },
-});
-
 app.post("/zee", async (req, res) => {
   const prompt = req.body.description;
   const op = req.body.output;
@@ -57,7 +33,7 @@ app.post("/zee", async (req, res) => {
     description: prompt,
     //output: "A memecoin is created and deployed",
     output: op,
-    agents: { scannerAgent, traderAgent, ethMemecoin },
+    agents: { ethMemecoin, scannerAgent, traderAgent },
   });
 
   const result = await ZeeWorkflow.run(zee);

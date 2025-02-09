@@ -1,10 +1,11 @@
 import { createTool } from "@covalenthq/ai-agent-sdk";
 import { z } from "zod";
-// import { createContract } from "../../services/createMemecoin.js";
+import { createContract } from "../services/createMemecoin.js";
 
-export const createSmartContact = createTool({
-  id: "create-smart-contract",
-  description: "Creates a solidity smart contract for the memecoin.",
+export const deployMemecoin = createTool({
+  id: "deploy-smart-contract",
+  description:
+    "Creates a solidity smart contract for the memecoin and deploys it.",
   schema: z.object({
     name: z
       .string()
@@ -22,10 +23,13 @@ export const createSmartContact = createTool({
 
     console.log(`Token name: ${name}, Symbol: ${symbol}`);
     const result = await createContract(name, symbol);
+    console.log(
+      `Contract created at: https://sepolia.etherscan.io/token/${result["target"]}`
+    );
     if (!result) {
       return "Unable to create contract for the memecoin.";
     }
 
-    return JSON.stringify(result);
+    return JSON.stringify(result["target"]);
   },
 });

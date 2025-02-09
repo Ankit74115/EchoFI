@@ -4,13 +4,13 @@ import { rugCheckTool } from "../tools/rugCheck.js";
 // import { tokenAnalysisTool } from '../tools/tokenAnalysis';
 
 export const scannerAgent = new Agent({
-  name: "Scanner Agent",
+  name: "Memecoin find",
   model: {
     provider: "OPEN_AI",
     name: "gpt-4o-mini",
   },
   description:
-    "Scans Twitter for memecoin mentions and analyzes them for potential opportunities",
+    "Only use this agent if we are needed to look for memecoins. Dont use this for creating the memecoin",
   // instructions: [
   //   "Monitor Twitter accounts for memecoin token mentions",
   //   "Extract token addresses from tweets. It is very visibly mentioned in the tweets.",

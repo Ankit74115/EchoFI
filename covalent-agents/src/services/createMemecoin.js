@@ -4,8 +4,8 @@ import axios from "axios";
 dotenv.config();
 import fs from "fs";
 import path from "path";
-import solc from "solc";
-import url from "url";
+import { execSync } from "child_process";
+import hre from "hardhat";
 
 const TWEET_MAX_TIME_MS = 24 * 60 * 60 * 1000;
 
@@ -28,24 +28,58 @@ export async function createContract(name, symbol) {
     roles: true,
   });
 
-  const folderPath = path.join(process.cwd(), "generated_contracts");
-  const filePath = path.join(folderPath, `memecoin.sol`);
-
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
-  }
+  const folderPath = path.join(process.cwd(), "contracts");
+  const filePath = path.join(folderPath, `${name}.sol`);
 
   fs.writeFileSync(filePath, contract, { flag: "w" });
-
-  if (!fs.existsSync(filePath)) {
-    throw new Error("Contract file creation failed.");
-  }
 
   console.log(`Smart contract saved at: ${filePath}`);
 
   const contractContent = fs.readFileSync(filePath, "utf-8");
+  // Compile contract using Hardhat
+  try {
+    execSync("npx hardhat compile", { stdio: "inherit" });
+    console.log("Compilation successful.");
+  } catch (error) {
+    console.error("Compilation failed:", error);
+    return;
+  }
+
+  try {
+    const [deployer] = await hre.ethers.getSigners();
+    const initialOwner = deployer.address;
+    const recipient = deployer.address;
+
+    console.log("Deploying contract with owner:", initialOwner);
+    console.log("Minting tokens to:", recipient);
+
+    const meme = await hre.ethers.getContractFactory(name);
+    const contract = await meme.deploy(initialOwner, recipient);
+
+    await contract.waitForDeployment();
+    console.log("Contract deployed to:", await contract.getAddress());
+
+    cleanUpArtifacts();
+
+    return contract;
+  } catch (error) {
+    console.error("Deployment failed:", error);
+  }
+
   return contractContent;
 }
+
+function cleanUpArtifacts() {
+  try {
+    console.log("Cleaning up compiled artifacts...");
+    execSync("rm -rf artifacts cache", { stdio: "inherit" });
+    console.log("Artifacts removed successfully.");
+  } catch (error) {
+    console.error("Failed to remove artifacts:", error);
+  }
+}
+
+// console.log(await createContract("Pepecoin", "$PEPE"));
 
 async function getSingleTweet(userId) {
   const config = {
@@ -90,9 +124,11 @@ async function getSingleTweet(userId) {
 export async function getTrends() {
   const results = {};
   const userIds = [
-    "1545317129066405893",
-    "1354400126857605121",
-    "1591438878350589954",
+    "794340244967538689",
+    "5695632",
+    "312230865",
+    "1289342590299512832",
+    "721155330",
   ];
 
   for (const userId of userIds) {
@@ -108,86 +144,3 @@ export async function getTrends() {
 
   return JSON.stringify(results);
 }
-
-// export function compileContract(name) {
-//   const contractPath = "./generated_contracts/memecoin.sol";
-//   const source = fs.readFileSync(contractPath, "utf8");
-
-//   const input = {
-//     language: "Solidity",
-//     sources: {
-//       "memecoin.sol": { content: source },
-//     },
-//     settings: { outputSelection: { "": { "": ["abi", "evm.bytecode"] } } },
-//   };
-
-//   const output = JSON.parse(solc.compile(JSON.stringify(input)));
-//   console.log(output);
-
-//   const contractName = name;
-//   const abi = output.contracts["memecoin.sol"][contractName].abi;
-//   const bytecode =
-//     output.contracts["memecoin.sol"][contractName].evm.bytecode.object;
-
-//   // Save ABI and Bytecode
-//   fs.writeFileSync("MemecoinABI.json", JSON.stringify(abi, null, 2));
-//   fs.writeFileSync("MemecoinBytecode.bin", bytecode);
-
-//   console.log("Compilation successful! ABI and Bytecode saved.");
-// }
-
-export function compileContract() {
-  const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-  const contractPath = path.join(
-    __dirname,
-    "../../generated_contracts/memecoin.sol"
-  );
-
-  if (!fs.existsSync(contractPath)) {
-    console.error("Contract file not found at:", contractPath);
-    return;
-  }
-
-  const source = fs.readFileSync(contractPath, "utf8");
-
-  const input = {
-    language: "Solidity",
-    sources: {
-      "memecoin.sol": { content: source },
-    },
-    settings: {
-      outputSelection: {
-        "*": {
-          "*": ["abi", "evm.bytecode"],
-        },
-      },
-    },
-  };
-
-  try {
-    const output = JSON.parse(solc.compile(JSON.stringify(input)));
-
-    if (!output.contracts || !output.contracts["memecoin.sol"]) {
-      console.error("Compilation failed:", output.errors || "Unknown error");
-      return;
-    }
-
-    const contract = output.contracts["memecoin.sol"];
-    const contractName = Object.keys(contract)[0]; // Get contract name dynamically
-    const abi = contract[contractName].abi;
-    const bytecode = contract[contractName].evm.bytecode.object;
-
-    // Save ABI and Bytecode
-    fs.writeFileSync(
-      path.join(__dirname, "MemecoinABI.json"),
-      JSON.stringify(abi, null, 2)
-    );
-    fs.writeFileSync(path.join(__dirname, "MemecoinBytecode.bin"), bytecode);
-
-    console.log("✅ Compilation successful! ABI and Bytecode saved.");
-  } catch (error) {
-    console.error("❌ Compilation error:", error);
-  }
-}
-
-// compileContract();
