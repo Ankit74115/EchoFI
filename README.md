@@ -1,5 +1,10 @@
 # EchoFi: The DeFi AI Agent
 
+<h4 align="center">
+  <a href="https://ai.sudeepgowda.tech/">Click here to visit EchoFi Webapp</a>
+</h4>
+
+
 ## Overview
 EchoFi is an advanced AI-powered DeFi agent that interacts with users like a human, providing real-time insights into decentralized finance (DeFi) and blockchain ecosystems. It is designed to simplify and automate complex blockchain operations while offering multilingual support to onboard millions of users into Web3.
 
