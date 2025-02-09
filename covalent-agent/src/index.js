@@ -2,6 +2,9 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import { Agent, ZeeWorkflow } from "@covalenthq/ai-agent-sdk";
+import { ethMemecoin } from "./agents/coinAgent.js";
+import { scannerAgent } from "./agents/scannerAgent.js";
+import { traderAgent } from "./agents/traderAgent.js";
 
 const app = express();
 
@@ -48,12 +51,13 @@ const zee = new ZeeWorkflow({
 });
 
 app.post("/zee", async (req, res) => {
-  const body = req.body;
-
+  const prompt = req.body.description;
+  const op = req.body.output;
   const zee = new ZeeWorkflow({
-    description: body.description,
-    output: "Just bunch of stuff",
-    agents: { agent1, agent2 },
+    description: prompt,
+    //output: "A memecoin is created and deployed",
+    output: op,
+    agents: { scannerAgent, traderAgent, ethMemecoin },
   });
 
   const result = await ZeeWorkflow.run(zee);

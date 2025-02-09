@@ -41,6 +41,15 @@
     "@types/express": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "@openzeppelin/contracts": "^5.2.0",
+    "@openzeppelin/wizard": "^0.5.1",
+    "@raydium-io/raydium-sdk-v2": "^0.1.111-alpha",
+    "@solana/spl-token": "^0.4.12",
+    "@solana/web3.js": "^1.98.0",
+    "axios": "^1.7.9",
+    "bs58": "^6.0.0",
+    "ethers": "^6.13.5",
+    "solc": "^0.8.28"
   }
 }
