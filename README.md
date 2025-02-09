@@ -13,7 +13,8 @@ EchoFi is an advanced AI-powered DeFi agent that interacts with users like a hum
 - **Oracle & Data Fetching**: Scrapes tweets, fetches real-time blockchain data, and integrates with oracle services for decision-making.
 
 ## System Architecture
-![System Architecture](./path-to-your-diagram.png)
+<img width="1416" alt="Screenshot 2025-02-09 at 9 37 28 PM" src="https://github.com/user-attachments/assets/90772dba-93be-4f2e-88f6-21368f97df10" />
+
 
 ### Workflow
 1. **User Input**: The user provides input via voice or text.
