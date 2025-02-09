@@ -108,9 +108,17 @@ export default function VoiceControl({ setIsListening, onNewMessage }: VoiceCont
       if (openAIResponse.action === "base-transaction") {
         onNewMessage("Performing transaction on Base Network...", "ai");
         await speakText("Performing transaction on Base Network");
-        const response = await axios.post("https://base-ai-agent-e88fafda6d87.herokuapp.com/chat", {
-          message: openAIResponse.data,
-        });
+        const response = await axios.post(
+          "https://autonome.alt.technology/base-ai-oyweuq/chat",
+          {
+            message: openAIResponse.data,
+          },
+          {
+            headers: {
+              Authorization: `Basic ${process.env.NEXT_PUBLIC_AUTONOME_BASE_AGENT}`,
+            },
+          }
+        );
         onNewMessage(response.data.response, "ai");
         await speakText(response.data.response);
       } else if (openAIResponse.action === "covalent-transaction") {
