@@ -4,8 +4,8 @@ import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import VoiceControl from "../../../components/voice/VoiceControl";
-import openAIReasoning from "../../../utils/openaiReasoning";
 import { speakText } from "../../../utils/hyperbolic";
+import openAIKoreanReasoning from "../../../utils/openaiKoreanReasoning";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -17,7 +17,9 @@ export default function Home() {
     setMessages((prev) => [...prev, { type: "user", text: userText }]);
 
     try {
-      const openAIResponse = await openAIReasoning(userText);
+      const openAIResponse = await openAIKoreanReasoning(userText);
+
+      console.log(openAIResponse);
 
       if (openAIResponse.action === "base-transaction") {
         setMessages((prev) => [
@@ -45,8 +47,11 @@ export default function Home() {
         ]);
         await speakText("Performing Transaction using covalent agents");
       } else {
-        setMessages((prev) => [...prev, { type: "ai", text: openAIResponse.data as string }]);
-        await speakText(openAIResponse.data as string);
+        setMessages((prev) => [
+          ...prev,
+          { type: "ai", text: openAIResponse.languageData as string },
+        ]);
+        await speakText(openAIResponse.languageData as string);
       }
     } catch (error) {
       console.error("Error processing user input:", error);
