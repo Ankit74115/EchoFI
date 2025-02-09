@@ -39,6 +39,73 @@ EchoFi is an advanced AI-powered DeFi agent that interacts with users like a hum
 6. **Response & Interaction**:
    - The AI agent responds via text or voice, providing real-time updates to the user.
   
+## Prompts
+
+### **1. Check Balance on Base Network**
+**Prompt:**  
+> What is my balance on Base Network?
+
+**Response:**  
+Performing transaction on Base Network...
+
+**Wallet Details:**  
+- **Provider:** viem_wallet_provider  
+- **Address:** 0xbEF9C1f9aCb9E8252edc0B8279A4eb10bEDCc6F7  
+- **Network:**  
+  - **Protocol Family:** EVM  
+  - **Network ID:** base-sepolia  
+  - **Chain ID:** 84532  
+- **ETH Balance:** 1.509100 ETH  
+- **Native Balance:** 1,509,099,916,492,252,270 WEI (equivalent to 1.509100 ETH)  
+
+Your wallet is currently on the **Base Sepolia network (base-sepolia)** with the above balances.
+
+---
+
+### **2. Send ETH on Base Network**
+**Prompt:**  
+> Send 0.0001 ETH to 0xF297fb18353F3e5E5eAe07806F93316D3848e238 on Base Network.
+
+**Response:**  
+Performing transaction on Base Network...
+
+**Wallet Details:**  
+- **Provider:** viem_wallet_provider  
+- **Address:** 0xbEF9C1f9aCb9E8252edc0B8279A4eb10bEDCc6F7  
+- **Network:**  
+  - **Protocol Family:** EVM  
+  - **Network ID:** base-sepolia  
+  - **Chain ID:** 84532  
+- **ETH Balance:** 1.509100 ETH  
+- **Native Balance:** 1509099916492252270 WEI  
+
+Transferred 0.0001 ETH to **0xF297fb18353F3e5E5eAe07806F93316D3848e238**.  
+Transaction hash: **0x60c5eded3a9bd225ab9135d6b08ac1fa0bcd7674ca137990d50c15d1e9266793**.
+
+---
+
+### **3. Get Bitcoin Price**
+**Prompt:**  
+> What is the price of Bitcoin?
+
+**Response:**  
+Performing transaction on Base Network...
+
+The latest price of Bitcoin (BTC) is **$95,518.94**.
+
+---
+
+### **4. Request ETH from Faucet**
+**Prompt:**  
+> Request 0.0001 ETH to my wallet on Base Network via faucet.
+
+**Response:**  
+Received ETH from the faucet.  
+Transaction: [View Transaction](https://sepolia.basescan.org/tx/0xd58a2e10bdb074b525f017de753798a9a579920bc6b99138916252dcd2de20c1)  
+
+I have successfully received **0.0001 ETH** from the faucet.
+
+  
 ### Demo
 [![Watch the video](https://img.youtube.com/vi/raKDcZQEwQc/0.jpg)](https://youtu.be/raKDcZQEwQc)
 
