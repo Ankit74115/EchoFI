@@ -44,6 +44,19 @@ export default function Home() {
           { type: "ai", text: "Performing Transaction using covalent agents..." },
         ]);
         await speakText("Performing Transaction using covalent agents");
+        const response = await axios.post(
+          "https://autonome.alt.technology/covalent-llzhrx/zee",
+          {
+            description: openAIResponse.data,
+          },
+          {
+            headers: {
+              Authorization: `Basic ${process.env.NEXT_PUBLIC_AUTONOME_COVALENT_AGENT}`,
+            },
+          }
+        );
+        setMessages((prev) => [...prev, { type: "ai", text: response.data.messages[2].content }]);
+        await speakText(response.data.messages[2].content);
       } else {
         setMessages((prev) => [...prev, { type: "ai", text: openAIResponse.data as string }]);
         await speakText(openAIResponse.data as string);
