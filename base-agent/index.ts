@@ -18,6 +18,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import express from 'express';
 
 // Viem-related imports for wallet management
 import { createWalletClient, http } from "viem";
@@ -283,13 +284,8 @@ async function runAutonomousMode(agent: any, config: any, pyth: any, interval = 
   }
 }
 
-/**
- * Run the agent interactively based on user input
- *
- * @param agent - The agent executor
- * @param config - Agent configuration
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Commenting out the command line input interface
+/*
 async function runChatMode(agent: any, config: any) {
   console.log("Starting chat mode... Type 'exit' to end.");
 
@@ -330,6 +326,7 @@ async function runChatMode(agent: any, config: any) {
     rl.close();
   }
 }
+*/
 
 /**
  * Choose whether to run in autonomous or chat mode based on user input
@@ -347,9 +344,9 @@ async function chooseMode(): Promise<"chat" | "auto"> {
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    console.log("\nAvailable modes:");
-    console.log("1. chat    - Interactive chat mode");
-    console.log("2. auto    - Autonomous action mode");
+    // console.log("\nAvailable modes:");
+    // console.log("1. chat    - Interactive chat mode");
+    // console.log("2. auto    - Autonomous action mode");
 
     const choice = (await question("\nChoose a mode (enter number or name): "))
       .toLowerCase()
@@ -374,7 +371,7 @@ async function main() {
     const { agent, config } = await initializeAgent();
     const mode = await chooseMode();
     if (mode === "chat") {
-      await runChatMode(agent, config);
+      //await runChatMode(agent, config);
     } else {
      //await runAutonomousMode(agent, config, agent.pythActionProvider, 10);
     }
@@ -382,5 +379,42 @@ async function main() {
     console.error("Error during agent initialization:", error);
   }
 }
+
+// Create an Express application
+const app = express();
+app.use(express.json()); // Middleware to parse JSON bodies
+
+// Define the /chat endpoint
+app.post('/chat', async (req:any, res:any) => {
+  const userInput = req.body.message; // Fetch user input from request body
+
+  if (!userInput) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
+  try {
+    const { agent, config } = await initializeAgent();
+    const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+
+    let responseContent = '';
+    for await (const chunk of stream) {
+      if ("agent" in chunk) {
+        responseContent += chunk.agent.messages[0].content + "\n";
+      } else if ("tools" in chunk) {
+        responseContent += chunk.tools.messages[0].content + "\n";
+      }
+    }
+
+    res.json({ response: responseContent.trim() }); // Send the response back
+  } catch (error) {
+    console.error("Error during chat:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Start the server on port 4080
+app.listen(4090, () => {
+  console.log("Server is running on http://localhost:4090");
+});
 
 main();
