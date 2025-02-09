@@ -2,6 +2,8 @@
 
 ## Overview
 EchoFi is an advanced AI-powered DeFi agent that interacts with users like a human, providing real-time insights into decentralized finance (DeFi) and blockchain ecosystems. It is designed to simplify and automate complex blockchain operations while offering multilingual support to onboard millions of users into Web3.
+
+<br/>
 <img width="1108" alt="Screenshot 2025-02-09 at 9 41 51 PM" src="https://github.com/user-attachments/assets/f5d9e3a0-162c-4da8-b34e-6c0e662c2aec" />
 
 ## Key Capabilities
