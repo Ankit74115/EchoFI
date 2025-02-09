@@ -1,20 +1,73 @@
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import VoiceControl from "../../../components/voice/VoiceControl";
+import openAIReasoning from "../../../utils/openaiReasoning";
+import { speakText } from "../../../utils/hyperbolic";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
   const [messages, setMessages] = useState<Array<{ type: "user" | "ai"; text: string }>>([]);
+  const [inputText, setInputText] = useState("");
 
-  const handleNewMessage = (text: string, type: "user" | "ai") => {
-    setMessages((prev) => [...prev, { type, text }]);
+  const handleUserInput = async (userText: string) => {
+    // Add user message
+    setMessages((prev) => [...prev, { type: "user", text: userText }]);
+
+    try {
+      const openAIResponse = await openAIReasoning(userText);
+
+      if (openAIResponse.action === "base-transaction") {
+        setMessages((prev) => [
+          ...prev,
+          { type: "ai", text: "Performing transaction on Base Network..." },
+        ]);
+        await speakText("Performing transaction on Base Network");
+        const response = await axios.post(
+          "https://autonome.alt.technology/base-ai-oyweuq/chat",
+          {
+            message: openAIResponse.data,
+          },
+          {
+            headers: {
+              Authorization: `Basic ${process.env.NEXT_PUBLIC_AUTONOME_BASE_AGENT}`,
+            },
+          }
+        );
+        setMessages((prev) => [...prev, { type: "ai", text: response.data.response }]);
+        await speakText(response.data.response);
+      } else if (openAIResponse.action === "covalent-transaction") {
+        setMessages((prev) => [
+          ...prev,
+          { type: "ai", text: "Performing Transaction using covalent agents..." },
+        ]);
+        await speakText("Performing Transaction using covalent agents");
+      } else {
+        setMessages((prev) => [...prev, { type: "ai", text: openAIResponse.data as string }]);
+        await speakText(openAIResponse.data as string);
+      }
+    } catch (error) {
+      console.error("Error processing user input:", error);
+      setMessages((prev) => [
+        ...prev,
+        { type: "ai", text: "Sorry, there was an error processing your request." },
+      ]);
+      await speakText("Sorry, there was an error processing your request.");
+    }
+  };
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+    await handleUserInput(inputText.trim());
+    setInputText("");
   };
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-      {/* 账户按钮 */}
+      {/* Account Button */}
       <div className="flex justify-end p-4">
         <a
           href="/account"
@@ -26,7 +79,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-1">
-        {/* 左侧 - 聊天界面 */}
+        {/* Left Side - Chat Interface */}
         <div className="flex-1 px-6">
           <div className="h-full flex flex-col">
             <div className="mb-6">
@@ -55,15 +108,32 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Text Input Form */}
+            <form onSubmit={handleTextSubmit} className="mt-4 pb-6">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Type your message or address here..."
+              />
+              <button
+                type="submit"
+                className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Send Message
+              </button>
+            </form>
           </div>
         </div>
 
-        {/* 右侧 - 语音控制 */}
+        {/* Right Side - Voice Control */}
         <div className="w-1/3 flex flex-col items-center justify-center p-6 border-l border-gray-700">
           <VoiceControl
             isListening={isListening}
             setIsListening={setIsListening}
-            onNewMessage={handleNewMessage}
+            handleUserInput={handleUserInput}
           />
         </div>
       </div>
