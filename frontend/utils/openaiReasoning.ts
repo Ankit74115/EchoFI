@@ -170,6 +170,10 @@ const openAIReasoning = async (
                     -  If the user requests transactions, balance checks, token swaps, or memecoin purchases on **Ethereum Sepolia, any Ethereum network, or Solana networks**, respond with:
                       {"action": "covalent-transaction", "data": "<formatted instruction for Solana or Ethereum networks>"}
                       (This will be forwarded to the Covalent AI agent.)
+                      
+                    - If the user requests the price of any coin, token, ETH, BTC, or any other price feed, it will be fetched by AgentKit using PythOracle. When the user makes request like this , you respond in this structure:
+                      {"action": "base-transaction", "data": "<formatted instruction of user request>"}
+                      (This will be forwarded to Agent Kit for execution.)
                   `;
 
   const response = await axios.post(
