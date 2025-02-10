@@ -45,7 +45,7 @@ export default function Home() {
         ]);
         await speakText("Performing Transaction using covalent agents");
         const response = await axios.post(
-          "https://autonome.alt.technology/covalent-llzhrx/zee",
+          "https://autonome.alt.technology/covalen2-alruib",
           {
             description: openAIResponse.data,
           },
