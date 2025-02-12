@@ -13,17 +13,17 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
 
   const handleUserInput = async (userText: string) => {
-    // Add user message
+    // Agregar mensaje del usuario
     setMessages((prev) => [...prev, { type: "user", text: userText }]);
 
     try {
       const aiResponse = await mistralReasoning(userText);
 
       if (aiResponse.type === "base-transaction") {
-        await speakText("Performing transactions using base agents");
+        await speakText("Transacties uitvoeren met behulp van basisagenten");
         setMessages((prev) => [
           ...prev,
-          { type: "ai", text: "Performing transactions using base agents..." },
+          { type: "ai", text: "Transacties uitvoeren met behulp van basisagenten..." },
         ]);
         const response = await axios.post(
           "https://autonome.alt.technology/base-ai-oyweuq/chat",
@@ -39,10 +39,10 @@ export default function Home() {
         await speakText(response.data.response);
         setMessages((prev) => [...prev, { type: "ai", text: response.data.response }]);
       } else if (aiResponse.type === "covalent-transaction") {
-        await speakText("Performing transactions using covalent agents");
+        await speakText("Transactie uitvoeren met behulp van covalente agenten");
         setMessages((prev) => [
           ...prev,
-          { type: "ai", text: "Performing transactions using covalent agents..." },
+          { type: "ai", text: "Transactie uitvoeren met behulp van covalente agenten..." },
         ]);
       } else {
         await speakText(aiResponse.messageInNative as string);
@@ -52,11 +52,11 @@ export default function Home() {
         ]);
       }
     } catch (error) {
-      console.error("Error processing user input:", error);
-      await speakText("Sorry, there was an error processing your request.");
+      console.error("Error procesando la solicitud:", error);
+      await speakText("Lo siento, hubo un error procesando tu solicitud.");
       setMessages((prev) => [
         ...prev,
-        { type: "ai", text: "Sorry, there was an error processing your request." },
+        { type: "ai", text: "Lo siento, hubo un error procesando tu solicitud." },
       ]);
     }
   };
@@ -70,24 +70,26 @@ export default function Home() {
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-      {/* Account Button */}
+      {/* Botón de Cuenta */}
       <div className="flex justify-end p-4">
         <a
           href="/account"
           target="_blank"
           className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
         >
-          Account
+          Cuenta
         </a>
       </div>
 
       <div className="flex flex-1">
-        {/* Left Side - Chat Interface */}
+        {/* Lado Izquierdo - Interfaz de Chat */}
         <div className="flex-1 px-6">
           <div className="h-full flex flex-col">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">DeFi AI Assistant</h1>
-              <p className="text-gray-400">Your voice-enabled Decentralized Finance assistant</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Asistente de IA DeFi</h1>
+              <p className="text-gray-400">
+                Tu asistente de finanzas descentralizadas con control por voz
+              </p>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-4 pr-4">
@@ -112,26 +114,26 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Text Input Form */}
+            {/* Formulario de Entrada de Texto */}
             <form onSubmit={handleTextSubmit} className="mt-4 pb-6">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Type your message or address here..."
+                placeholder="Escribe tu mensaje o dirección aquí..."
               />
               <button
                 type="submit"
                 className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
               >
-                Send Message
+                Enviar Mensaje
               </button>
             </form>
           </div>
         </div>
 
-        {/* Right Side - Voice Control */}
+        {/* Lado Derecho - Control de Voz */}
         <div className="w-1/3 flex flex-col items-center justify-center p-6 border-l border-gray-700">
           <VoiceControl
             isListening={isListening}

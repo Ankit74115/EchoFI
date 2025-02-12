@@ -3,9 +3,9 @@
 import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import VoiceControl from "../../../components/voice/VoiceControl";
-import openAIReasoning from "../../../utils/openaiReasoning";
 import { speakText } from "../../../utils/hyperbolic";
+import mistralReasoning from "../../../utils/mistral";
+import VoiceControl from "../../../components/voice/VoiceControl";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -13,22 +13,22 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
 
   const handleUserInput = async (userText: string) => {
-    // Add user message
+    // Adicionar mensagem do usuário
     setMessages((prev) => [...prev, { type: "user", text: userText }]);
 
     try {
-      const openAIResponse = await openAIReasoning(userText);
+      const aiResponse = await mistralReasoning(userText);
 
-      if (openAIResponse.action === "base-transaction") {
+      if (aiResponse.type === "base-transaction") {
+        await speakText("Executar transações usando agentes básicos");
         setMessages((prev) => [
           ...prev,
-          { type: "ai", text: "Performing transaction on Base Network..." },
+          { type: "ai", text: "Executando transações usando agentes básicos..." },
         ]);
-        await speakText("Performing transaction on Base Network");
         const response = await axios.post(
           "https://autonome.alt.technology/base-ai-oyweuq/chat",
           {
-            message: openAIResponse.data,
+            message: aiResponse.messageInEnglish,
           },
           {
             headers: {
@@ -36,25 +36,28 @@ export default function Home() {
             },
           }
         );
-        setMessages((prev) => [...prev, { type: "ai", text: response.data.response }]);
         await speakText(response.data.response);
-      } else if (openAIResponse.action === "covalent-transaction") {
+        setMessages((prev) => [...prev, { type: "ai", text: response.data.response }]);
+      } else if (aiResponse.type === "covalent-transaction") {
+        await speakText("Executar transação usando agentes covalentes");
         setMessages((prev) => [
           ...prev,
-          { type: "ai", text: "Performing Transaction using covalent agents..." },
+          { type: "ai", text: "Executando transação usando agentes covalentes..." },
         ]);
-        await speakText("Performing Transaction using covalent agents");
       } else {
-        setMessages((prev) => [...prev, { type: "ai", text: openAIResponse.data as string }]);
-        await speakText(openAIResponse.data as string);
+        await speakText(aiResponse.messageInNative as string);
+        setMessages((prev) => [
+          ...prev,
+          { type: "ai", text: aiResponse.messageInNative as string },
+        ]);
       }
     } catch (error) {
-      console.error("Error processing user input:", error);
+      console.error("Erro ao processar a entrada do usuário:", error);
+      await speakText("Desculpe, ocorreu um erro ao processar sua solicitação.");
       setMessages((prev) => [
         ...prev,
-        { type: "ai", text: "Sorry, there was an error processing your request." },
+        { type: "ai", text: "Desculpe, ocorreu um erro ao processar sua solicitação." },
       ]);
-      await speakText("Sorry, there was an error processing your request.");
     }
   };
 
@@ -67,25 +70,25 @@ export default function Home() {
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-      {/* Account Button */}
+      {/* Botão de Conta */}
       <div className="flex justify-end p-4">
         <a
           href="/account"
           target="_blank"
           className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
         >
-          Account
+          Conta
         </a>
       </div>
 
       <div className="flex flex-1">
-        {/* Left Side - Chat Interface */}
+        {/* Lado Esquerdo - Interface de Chat */}
         <div className="flex-1 px-6">
           <div className="h-full flex flex-col">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">DeFi AI Assistent</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Assistente DeFi AI</h1>
               <p className="text-gray-400">
-                Uw spraakgestuurde gedecentraliseerde financiële assistent
+                Seu assistente de finanças descentralizadas com suporte de voz
               </p>
             </div>
 
@@ -111,26 +114,26 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Text Input Form */}
+            {/* Formulário de Entrada de Texto */}
             <form onSubmit={handleTextSubmit} className="mt-4 pb-6">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Type your message or address here..."
+                placeholder="Digite sua mensagem ou endereço aqui..."
               />
               <button
                 type="submit"
                 className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
               >
-                Send Message
+                Enviar Mensagem
               </button>
             </form>
           </div>
         </div>
 
-        {/* Right Side - Voice Control */}
+        {/* Lado Direito - Controle de Voz */}
         <div className="w-1/3 flex flex-col items-center justify-center p-6 border-l border-gray-700">
           <VoiceControl
             isListening={isListening}

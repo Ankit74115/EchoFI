@@ -6,11 +6,14 @@ import { motion } from "framer-motion";
 
 const languages = [
   { code: "english", name: "English", icon: "🇬🇧" },
-  { code: "hindi", name: "Hindi", icon: "🇮🇳" },
+  { code: "chinese", name: "Chinese", icon: "🇨🇳" },
+  { code: "dutch", name: "Dutch", icon: "🇳🇱" },
+  { code: "french", name: "French", icon: "🇫🇷" },
+  { code: "italian", name: "Italian", icon: "🇮🇹" },
+  { code: "japanese", name: "Japanese", icon: "🇯🇵" },
   { code: "korean", name: "Korean", icon: "🇰🇷" },
-  { code: "arabic", name: "Arabic", icon: "🇸🇦" },
-  { code: "zh", name: "Chinese", icon: "🇨🇳" },
-  { code: "nl", name: "Dutch", icon: "🇳🇱" },
+  { code: "portuguese", name: "Portuguese", icon: "🇵🇹" },
+  { code: "spanish", name: "Spanish", icon: "🇪🇸" },
 ];
 
 export default function LanguageSelectionPage() {

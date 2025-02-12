@@ -108,7 +108,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/language/english"
+                href="/language"
                 className="inline-flex items-center px-8 py-4 border-2 border-blue-700 bg-blue-700 hover:bg-blue-800 text-base font-medium rounded-xl text-white transition-all duration-300 shadow-lg transform hover:scale-105"
               >
                 Try Voice Assistant
@@ -234,7 +234,7 @@ export default function Home() {
             your DeFi portfolio with just your voice.
           </p>
           <Link
-            href="/language/english"
+            href="/language"
             className="inline-flex items-center px-8 py-4 border-2 border-blue-700 bg-blue-700 hover:bg-blue-800 text-base font-medium rounded-xl text-white transition-all duration-300 shadow-lg transform hover:scale-105"
           >
             Get Started Now
