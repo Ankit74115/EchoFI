@@ -84,14 +84,14 @@ Transaction hash: **0x60c5eded3a9bd225ab9135d6b08ac1fa0bcd7674ca137990d50c15d1e9
 
 ---
 
-### **3. Get Bitcoin Price**
+### **3. Get Ethereum Price**
 **Prompt:**  
-> What is the price of Bitcoin?
+> What is the price of Ethereum?
 
 **Response:**  
 Performing transaction on Base Network...
 
-The latest price of Bitcoin (BTC) is **$95,518.94**.
+The latest price of Ethereum (ETH) is **$1,850.00 USD**.
 
 ---
 
@@ -143,5 +143,5 @@ We welcome contributions! If you’d like to contribute, fork the repository, cr
 [MIT License](./LICENSE)
 
 ## Contact
-For queries and collaborations, reach out at SudeepGowda55@proton.me
+For queries and collaborations, reach out at ankitgoni7411@gmail.com
 
